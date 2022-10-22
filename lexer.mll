@@ -16,4 +16,4 @@ rule token = parse
 | ['0'-'9']+'.'['0'-'9']+  {FLOAT(Lexing.lexeme lexbuf)}
 | ['0'-'9']+    {INT(Lexing.lexeme lexbuf)}
 | ['A'-'z' '0'-'9']+  {NAME(Lexing.lexeme lexbuf)}
-| eof {raise Eof}
+| eof {EOF}
