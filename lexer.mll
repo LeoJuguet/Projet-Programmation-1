@@ -12,8 +12,13 @@ rule token = parse
 | '*'   {TIMES}
 | '/'   {DIV}
 | '%'   {MOD}
-| '.'   {DOT}
-| ['0'-'9']+'.'['0'-'9']+  {FLOAT(Lexing.lexeme lexbuf)}
-| ['0'-'9']+    {INT(Lexing.lexeme lexbuf)}
-| ['A'-'z' '0'-'9']+  {NAME(Lexing.lexeme lexbuf)}
+| "+."  {ADDDOT}
+| "-."  {SUBDOT}
+| "*."  {TIMESDOT}
+| "/."  {DIVDOT}
+| ('-'|'+')?['0'-'9']+'.'['0'-'9']*  {FLOAT(Lexing.lexeme lexbuf)}
+| ('-'|'+')?['0'-'9']+    {INT(Lexing.lexeme lexbuf)}
+| "int"         {INTOFFLOAT}
+| "float"       {FLOATOFINT}
+| ['A'-'z']['A'-'z' '0'-'9' '_']*  {NAME(Lexing.lexeme lexbuf)}
 | eof {EOF}

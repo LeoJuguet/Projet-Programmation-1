@@ -6,6 +6,7 @@ type info = {
     mutable as_output_name : bool;
     mutable output_name : string
             }
+
 let usage_msg = "aritha <file> [-o <output>]"
 let input_files = ref []
 let output_file = ref ""
