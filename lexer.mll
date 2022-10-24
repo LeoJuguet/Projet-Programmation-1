@@ -12,6 +12,8 @@ rule token = parse
 | '*'   {TIMES}
 | '/'   {DIV}
 | '%'   {MOD}
+| '!'   {FACT}
+| "**"  {EXP}
 | "+."  {ADDDOT}
 | "-."  {SUBDOT}
 | "*."  {TIMESDOT}

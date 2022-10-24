@@ -3,11 +3,11 @@
 %token <string> FLOAT
 %token <string> NAME
 
-%token LBRACE RBRACE EOF ADD SUB TIMES DIV MOD ADDDOT SUBDOT TIMESDOT DIVDOT DOT INTOFFLOAT FLOATOFINT
+%token LBRACE RBRACE EOF ADD SUB TIMES DIV MOD FACT EXP ADDDOT SUBDOT TIMESDOT DIVDOT DOT INTOFFLOAT FLOATOFINT
 
 
 %left ADD SUB ADDDOT SUBDOT
-%left TIMES DIV TIMESDOT DIVDOT
+%left TIMES DIV FACT TIMESDOT DIVDOT
 %left MOD
 
 %start parse
@@ -33,6 +33,8 @@ sexint:
   |SUB LBRACE sexint RBRACE {Asyntax.USubi $3}
   |INTOFFLOAT LBRACE sexfloat RBRACE {Asyntax.Convfi $3}
   |LBRACE sexint RBRACE {$2}
+  |sexint FACT {Asyntax.Fact $1}
+  |sexint EXP sexint {Asyntax.Expi ($1,$3)}
   |INT {Asyntax.Int $1}
 ;
 sexfloat:
@@ -43,5 +45,6 @@ sexfloat:
   |SUB LBRACE sexfloat RBRACE {Asyntax.USubf $3}
   |FLOATOFINT LBRACE sexint RBRACE {Asyntax.Convif $3}
   |LBRACE sexfloat RBRACE {$2}
+  |sexfloat EXP sexint {Asyntax.Expf($1,$3)}
   |FLOAT {Asyntax.Float $1}
 ;

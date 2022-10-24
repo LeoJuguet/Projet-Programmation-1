@@ -6,20 +6,62 @@ exception NotImplemented
 
 let print_int =
 "print_int:
- movq %rdi, %rsi
- movq $S_int, %rdi
- xorq %rax, %rax
- call printf
- ret
+\tmovq %rdi, %rsi
+\tmovq $S_int, %rdi
+\txorq %rax, %rax
+\tcall printf
+\tret
  " and s_int = label "S_int"++ string "%d\n"
 
 let print_float =
 "print_float:
-        movq $S_float, %rdi
-        movq $1, %rax
-        call printf
-        ret
-" and s_float = label "S_float" ++ string "%f\n"
+\tmovq $S_float, %rdi
+\tmovq $1, %rax
+\tcall printf
+\tret\n"
+ and s_float = label "S_float" ++ string "%f\n"
+
+let fact =
+".fact:
+\tmovq %rdi, %rbx
+\tmovq $1, %rax
+\tcmpq $0,%rdi
+\tjnz .loopfact
+\tret
+.loopfact:
+\timulq %rbx, %rax
+\tdecq %rbx
+\tjnz .loopfact
+\tret\n"
+
+let expint =
+"
+.expint:
+\tmovq $1, %rax
+\tcmpq $0, %rdi
+\tjnz .loopexpint
+\tret
+.loopexpint:
+\timulq %rdi, %rax
+\tdecq %rsi
+\tjnz .loopexpint
+\tret\n
+"
+let expfloat =
+"
+.expfloat:
+\tmovsd %xmm0, %xmm1
+\tmovsd .CST1, %xmm0
+\tcmpq $0, %rdi
+\tjnz .loopexpfloat
+\tret
+.loopexpfloat:
+\tmulsd %xmm1, %xmm0
+\tdecq %rdi
+\tjnz .loopexpfloat
+\tret\n
+" and
+dataexpfloat = ".CST1:\n\t.double 1.0\n"
 
 type code = {mutable text: text;mutable data: data}
 
@@ -28,8 +70,10 @@ let ast_to_asm ast name=
       text = globl "main" ++ label "main" ++ pushq (reg rbp);
       data =nop }
   in
+  let addfact = ref false in
+  let addexpint = ref false in
+  let addexpfloat = ref false in
   let nbfloat = ref 0 in
-  let fr = ref (-1) in
   let pushfnew regf = subq (imm 8) (reg rsp)
                       ++ movq (reg rsp) (reg rbp)
                       ++ inline ("\tmovsd "^regf^",%xmm0\n")
@@ -72,6 +116,14 @@ let ast_to_asm ast name=
                        ++ idivq (reg rcx)
                        ++ pushq (reg rdx)
         end
+      |Fact x -> begin
+          sexint_to_asm x;
+          code.text <- code.text
+                       ++popq rdi
+                       ++call ".fact"
+                       ++pushq (reg rax);
+          addfact := true;
+        end
       |UAddi x -> sexint_to_asm x
       |USubi x ->begin
           sexint_to_asm x;
@@ -80,9 +132,20 @@ let ast_to_asm ast name=
                        ++ negq (reg rax)
                        ++ pushq (reg rax);
         end
+      |Expi(x,y) -> begin
+        sexint_to_asm x;
+        sexint_to_asm y;
+        code.text <- code.text
+                     ++ popq rsi
+                     ++ popq rdi
+                     ++ call ".expint"
+                     ++ pushq (reg rax);
+        addexpint := true;
+        end
       | Convfi (x) -> begin
           sexfloat_to_asm x;
           code.text <- code.text
+                       ++ popf "%xmm0"
                        ++ inline "cvttsd2siq\t%xmm0, %rax\n"
                        ++ pushq (reg rax);
         end
@@ -109,8 +172,8 @@ let ast_to_asm ast name=
           sexfloat_to_asm x;
           sexfloat_to_asm y;
           code.text <- code.text
-                       ++ popf "%xmm0"
                        ++ popf "%xmm1"
+                       ++ popf "%xmm0"
                        ++ inline ("\tsubsd %xmm1, %xmm0\n")
                        ++ pushf "%xmm0";
           end
@@ -125,12 +188,22 @@ let ast_to_asm ast name=
           end
       |UAddf x -> sexfloat_to_asm x; (* +x = x*)
       |USubf x -> sexfloat_to_asm (Subf(Float("0.0"),x)) (* -x = 0 - x*)
+      |Expf (x,y) -> begin
+          sexfloat_to_asm x;
+          sexint_to_asm y;
+          code.text <- code.text
+                       ++ popq rdi
+                       ++ popf "%xmm0"
+                       ++ call ".expfloat"
+                       ++ pushf "%xmm0";
+          addexpfloat := true;
+        end
       | Convif (x) -> begin
           sexint_to_asm x;
-          incr fr;
           code.text <- code.text
                        ++ popq rax
-                       ++ inline ("\tcvtsi2sdq\t%rax, %xmm"^string_of_int !fr^"\n");
+                       ++ inline "\tcvtsi2sdq\t%rax, %xmm0\n"
+                       ++ pushf "%xmm0";
         end
   in (match ast with
      | Intexp a ->begin
@@ -142,6 +215,7 @@ let ast_to_asm ast name=
                       ++ xorq (reg rax) (reg rax)
                       ++ ret
                       ++ inline print_int;
+         if !addfact then code.text <- code.text ++ inline fact;
          code.data <- code.data
                       ++ label "S_int"
                       ++ string "%d\n";
@@ -155,9 +229,14 @@ let ast_to_asm ast name=
                       ++ xorq (reg rax) (reg rax)
                       ++ ret
                       ++ inline print_float;
+         if !addfact then code.text <- code.text ++ inline fact;
          code.data <- code.data
                       ++ label "S_float"
                       ++ string "%f\n";
        end);
+     if !addexpint then code.text <- code.text ++ inline expint;
+     if !addexpfloat then
+       (code.text <- code.text ++ inline expfloat;
+        code.data <- code.data ++ inline dataexpfloat;);
     let codef:program = {text = code.text; data = code.data} in
     print_in_file ~file:name codef;

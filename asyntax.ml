@@ -13,6 +13,8 @@ and
  |Modi of sexpint * sexpint
  |UAddi of sexpint
  |USubi of sexpint
+ |Fact of sexpint
+ |Expi of sexpint * sexpint
  |Convfi of sexfloat
 and sexfloat =
   Float of string
@@ -21,4 +23,5 @@ and sexfloat =
 |Timesf of sexfloat * sexfloat
 |UAddf of sexfloat
 |USubf of sexfloat
+|Expf of sexfloat * sexpint
 |Convif of sexpint
