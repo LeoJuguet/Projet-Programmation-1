@@ -26,4 +26,4 @@ let _ =
     let ast = read() in
     let output_name = if !output_file = "" then "a.s" else !output_file
     in
-    Assembler.ast_to_asm ast output_name
+    Assembler.ast_to_asm ast output_name;
