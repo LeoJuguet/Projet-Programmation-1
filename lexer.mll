@@ -4,7 +4,8 @@
 }
 
 rule token = parse
-     [' ' '\t' '\n'] {token lexbuf}
+  [' ' '\t'] {token lexbuf}
+| '\n'  {EOL}
 | '('   {LBRACE}
 | ')'   {RBRACE}
 | '+'   {ADD}
@@ -18,6 +19,7 @@ rule token = parse
 | "-."  {SUBDOT}
 | "*."  {TIMESDOT}
 | "/."  {DIVDOT}
+| "="   {EQUAL}
 | ('-'|'+')?['0'-'9']+'.'['0'-'9']*  {FLOAT(Lexing.lexeme lexbuf)}
 | ('-'|'+')?['0'-'9']+    {INT(Lexing.lexeme lexbuf)}
 | "int"         {INTOFFLOAT}
