@@ -7,8 +7,10 @@
 
 
 %left ADD SUB ADDDOT SUBDOT
-%left TIMES DIV FACT TIMESDOT DIVDOT
+%left TIMES DIV TIMESDOT DIVDOT
 %left MOD
+%left EXP
+%left FACT
 %nonassoc EQUAL
 %nonassoc EOL
 %nonassoc EOF
