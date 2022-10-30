@@ -41,7 +41,7 @@ let expint =
 "
 .expint:
 \tmovq $1, %rax
-\tcmpq $0, %rdi
+\tcmpq $0, %rsi
 \tjnz .loopexpint
 \tret
 .loopexpint:
