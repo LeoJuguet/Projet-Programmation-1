@@ -43,6 +43,8 @@ sexint:
   |sexint FACT {Asyntax.Fact $1}
   |sexint EXP sexint {Asyntax.Expi ($1,$3)}
   |NAME {Asyntax.Variablei $1}
+  |ADD INT {Asyntax.Int $2}
+  |SUB INT {Asyntax.Int ("-"^$2)}
   |INT {Asyntax.Int $1}
 ;
 sexfloat:

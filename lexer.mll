@@ -23,7 +23,7 @@ rule token = parse
 | "="   {EQUAL}
 | ('-'|'+')?['0'-'9']+'.'['0'-'9']*  {FLOAT(Lexing.lexeme lexbuf)}
 | '.'['0'-'9']+ {FLOAT(Lexing.lexeme lexbuf)}
-| ('-'|'+')?['0'-'9']+    {INT(Lexing.lexeme lexbuf)}
+| ['0'-'9']+    {INT(Lexing.lexeme lexbuf)}
 | "int"         {INTOFFLOAT}
 | "float"       {FLOATOFINT}
 | ['A'-'Z' 'a'-'z' '_']['A'-'Z' 'a'-'z' '0'-'9' '_']*  {NAME(Lexing.lexeme lexbuf)}
