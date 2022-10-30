@@ -1,0 +1,112 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage{indentfirst}
+\topmargin=-0.45in
+\evensidemargin=0in
+\oddsidemargin=0in
+\textwidth=6.5in
+\textheight=9.0in
+\headsep=0.25in
+
+\title{Rapport : Projet Programmation 1}
+\author{Léo Juguet}
+\date{}
+
+
+\begin{document}
+\maketitle
+\newpage
+
+\section{Le langage}
+L'implémentation des entiers s'est fait sans problème.
+La gestion des flottants a demandé un peu plus de temps
+affin de comprendre le fonctionnement de la pile.
+
+Le code assembleur généré n'est pas un code optimisé. Ainsi il 
+y a souvent des éléments empilé dans la pile puis dépilé juste après.
+Il serait possible de remplacer ces 2 instructions par un move.
+\subsection{Implémentation}
+Grâce à l'utilisation de ocamllex et ocamlyacc dès la première minute,
+le lexer et le parser ont été très rapide a faire. De plus l'ajout
+ou la modification de fonctionnalités ont pu se faire très facilement.
+
+Le typage de l'arbre syntaxique se fait lors du parsing, grâce à un 
+arbre syntaxique bien typé, sauf pour un cas (voir dans la section Implémentation des variables).
+La traduction en code assembleur se fait ensuite avec un simple parcours de l'arbre. Chaque opération
+dépile le nombre d'éléments dont elle a besoin puis empile le résultat sur la pile. S'il n'y a pas de variables,
+à la fin on dépile le dernier éléments puis on appelle printf avec cet éléments. Grâce au typage de notre arbre syntaxique,
+il est facile de déterminer si l'on doit afficher un flottants ou un entier.
+
+\section{Bonus}
+\subsection{Opérateurs supplémentaire}
+
+La factorielle a été implémenté pour les entiers positifs. La factorielle pour des entiers négatifs donne un résultat non prévue.
+
+La puissance pour des entiers ou des flottants par un entier positif est implémenté. La puissance par des entiers négatifs donne un résultat non prévue.
+
+L'implémentation de ces deux fonctions utilise un appel à une fonctionne qui est ajouté au code assembleur si la fonction est appelé.
+
+La division entre float est également implémenté avec le symbole : \verb|/.|
+
+\subsection{Gestion de variables}
+Les variables sont implémentées. La syntaxe est la suivante : 
+
+\begin{verbatim}
+NomDeVariable = expression arithmétique
+...
+NomDeVariable = expression arithmétique
+expression arithmétique
+
+\end{verbatim}
+
+Il est important de noter que la dernière expression arithmétique est obligatoire, pour que le fichier \verb|.exp|
+puisse être compilé. Seul le résultat de la dernière expression arithmétique est affiché lors de l'exécution
+du programme résultant de la compilation du fichier assembleur donné par le compilateur aritha.
+
+Il est possible d'utiliser une variable dans une expression arithmétique, à condition que celle-ci soit définis
+dans une instruction précédente et qu'elle soit du bon type.
+
+Il est également possible de changer la valeur d'une variable avec la même syntaxe que pour l'assignation. Cela modifie également le
+type de la variable.
+
+\subsubsection{Implémentation des variables}
+Avec l'implémentation des expressions arithmétiques vue précédemment, on peut montrer qu'à la fin de l'évaluation d'une 
+expression arithmétique, il n'y a qu'un seul résultat empilé dans la pile et ce résultat est le résultat de l'expression arithmétique.
+\textit{(modulo des possible overflow dû à l'encodage des entiers et flottants)}.
+Donc pour affecter une valeur à une variables, il suffit d'évaluer l'expression arithmétique, puis de sauvegarder cette variables à un 
+emplacement bien choisi.
+
+Une première approche a été de sauvegarder les variables à la base de la pile, et d'avoir un compteur qui compte "de combien on est loin" du 
+"bloc des variables" 
+\footnote{en incrémentant le compteur si on ajoute des éléments sur la pile et en le décrémenant si on en enlève. 
+Ainsi l'addition décrémente de 1 le compteur, alors que la déclaration d'un entier l'incrémente de 1, et la factorielle ne change pas sa valeur.}, 
+puis d'y accéder en ajoutant ce compteur à la position de la tête de la pile (\verb|rsp|). Si cette méthode fonctionne, pour
+éviter des sources d'erreurs potentielle, la facon d'accéder aux variables a légèrement changé.
+
+Dans la seconde approche, on sauvegarde toujours les variables à la base de la pile. Cepandant au lieu d'y accéder depuis le registre 
+\verb|rsp|, on met la valeur de \verb|rsp| dans \verb|rpb| au début du programme. Ainsi dans \verb|rpb| on a la position de la base de la pile. Il 
+suffit alors de savoir dans quel ordre ont été sauvegardées les variables pour y accéder.
+Pour cela dans notre assembler a chaque déclaration de variables on stocke le nom de la variable et son type dans une file.
+(Le type de la variable est bien définis lors des déclarations car l'arbre syntaxique des expressions arithmétiques est bien typé 
+lors du parsing \footnote{Sauf pour un cas qui est traité très prochainement}).
+
+Si l'on veux redéfinir une variable, cela est possible. Ainsi le code suivant renverra \verb|10|
+\begin{verbatim}
+x = 5
+x = 5 + x
+x
+\end{verbatim}
+
+Pour faire cela, on vérifie simplement si la variable a déjà été définis (est dans la file des variables).
+Si c'est le cas, alors on évalue l'expression arithmétique de la redéfinition, puis on modifie la valeur de la variable dans la pile.
+Cette opération est toujours bien typé.
+
+
+Une seul opération n'est pas bien typé à la sortie du parser. Cette opération correspond à si il n'y a qu'une variable dans l'expression 
+arithmétique. Ainsi la dernière ligne de l'exemple ci-dessus, n'est pas bien typé à la sortie du parser. Pour résoudre ce problème,
+on parcours simplement la file de nos variable. Si la variable a été définis précédement alors la variable se trouve dans la file,
+et son type aussi, on connait alors le type de la variable et donc de l'expression arithmétique.
+
+
+\end{document}

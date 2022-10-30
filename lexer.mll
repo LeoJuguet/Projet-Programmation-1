@@ -21,6 +21,7 @@ rule token = parse
 | "/."  {DIVDOT}
 | "="   {EQUAL}
 | ('-'|'+')?['0'-'9']+'.'['0'-'9']*  {FLOAT(Lexing.lexeme lexbuf)}
+| '.'['0'-'9']+ {FLOAT(Lexing.lexeme lexbuf)}
 | ('-'|'+')?['0'-'9']+    {INT(Lexing.lexeme lexbuf)}
 | "int"         {INTOFFLOAT}
 | "float"       {FLOATOFINT}

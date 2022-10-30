@@ -108,7 +108,7 @@ let ast_to_asm ast name=
     in variable := aux !variable
   in
 
-  (*Instruction for push float on stack*)
+  (*Instruction for push new float on stack*)
   let pushfnew regf = subq (imm 8) (reg rsp)
                       ++ inline ("\tmovsd "^regf^",%xmm0\n")
                       ++ inline ("\tmovsd %xmm0, (%rsp)\n")
@@ -161,7 +161,7 @@ let ast_to_asm ast name=
           code.text <- code.text
                        ++ popq rcx
                        ++ popq rax
-                       ++ xorq (reg rdx) (reg rdx)
+                       ++ inline "\tcqo\n"
                        ++ idivq (reg rcx)
                        ++ pushq (reg rax);
         end
@@ -171,7 +171,7 @@ let ast_to_asm ast name=
           code.text <- code.text
                        ++ popq rcx
                        ++ popq rax
-                       ++ xorq (reg rdx) (reg rdx)
+                       ++ inline "\tcqo\n"
                        ++ idivq (reg rcx)
                        ++ pushq (reg rdx);
         end
@@ -257,6 +257,15 @@ let ast_to_asm ast name=
                        ++ inline ("\tmulsd %xmm1, %xmm0\n")
                        ++ pushf "%xmm0";
           end
+      | Divf (x,y) -> begin
+          sexfloat_to_asm x;
+          sexfloat_to_asm y;
+          code.text <- code.text
+                       ++ popf "%xmm1"
+                       ++ popf "%xmm0"
+                       ++ inline ("\tdivsd %xmm1, %xmm0\n")
+                       ++ pushf "%xmm0";
+            end
       |UAddf x -> sexfloat_to_asm x; (* +x = x*)
       |USubf x -> sexfloat_to_asm (Subf(Float("0.0"),x)) (* -x = 0 - x*)
       |Expf (x,y) -> begin

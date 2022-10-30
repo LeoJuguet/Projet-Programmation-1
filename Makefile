@@ -5,10 +5,13 @@ RED=\033[0;31m
 GREEN=\033[0;32m
 NOCOLOR=\033[0m
 
+all: $(NAME) rapport.pdf
+
 $(NAME): .depend $(MAIN_OBJS)
 	ocamlc -o $(NAME) $(MAIN_OBJS)
 
-
+rapport.pdf: rapport/rapport.tex
+	pdflatex -shell-escape rapport/rapport.tex -o rapport.pdf
 
 .SUFFIXES: .ml .mli .cmo .cmi .cmx .mll .mly
 
@@ -35,8 +38,8 @@ TESTS=$(TESTEXP:.exp=)
 count=
 
 test: cleantest $(TESTS)
-	@echo Test passed : $(words $(count))/$(words $(TESTS))
-
+	@echo Test passed : $$(wc -l compteur.sup | tr -dc '0-9')/$(words $(TESTEXP))
+	@rm compteur.sup
 
 test/%.s: $(NAME) test/%.exp
 	@./$(NAME) $(basename $@).exp -o $@
@@ -47,7 +50,7 @@ test/%: test/%.s
 	echo $(basename $@): ;\
 		./$(basename $@) > $(basename $@).tmp 2>/dev/null; \
 		if diff $(basename $@).ok $(basename $@).tmp; \
-			then (echo "\t$(GREEN)Success $(NOCOLOR)"; $(eval count += 1)) \
+			then (echo "\t$(GREEN)Success $(NOCOLOR)"; echo "1" >> compteur.sup) \
 		else echo "\t$(RED)Failed $(NOCOLOR)"; \
 		fi; \
 
@@ -61,13 +64,15 @@ update_test: $(TESTS)
 	done;\
 	echo test updated;\
 
-listTest: $(TESTS)
+listTest: $(TESTSEXP)
 	@echo $(TESTS) | awk -v OFS="\n" '$$1=$$1'
 
 #Clean
 clean:	cleantest
 	@rm -rf aritha *~ *.cm[iox] *.o parser.ml parser.mli lexer.ml *.tmp *.s
+	@rm -rf *.aux *.log *.out *.pdf
 	@echo cleaned project
+
 cleantest:
 	@rm -f $(TESTS) $(TESTS:=.tmp) $(TESTS:=.s)
 	@echo cleaned test

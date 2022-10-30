@@ -30,3 +30,12 @@ _opam/
 
 # Emacs temp
 \#*#
+
+# Custom
+.depend
+
+# PDF
+*.aux
+*.log
+*.out
+*.pdf

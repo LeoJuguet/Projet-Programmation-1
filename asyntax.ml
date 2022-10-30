@@ -28,6 +28,7 @@ and sexfloat =
 |Addf of sexfloat * sexfloat
 |Subf of sexfloat * sexfloat
 |Timesf of sexfloat * sexfloat
+|Divf of sexfloat * sexfloat
 |UAddf of sexfloat
 |USubf of sexfloat
 |Expf of sexfloat * sexpint

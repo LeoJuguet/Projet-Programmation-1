@@ -49,6 +49,7 @@ sexfloat:
   |sexfloat ADDDOT sexfloat {Asyntax.Addf($1,$3)}
   |sexfloat SUBDOT sexfloat {Asyntax.Subf($1,$3)}
   |sexfloat TIMESDOT sexfloat {Asyntax.Timesf($1,$3)}
+  |sexfloat DIVDOT sexfloat {Asyntax.Divf($1,$3)}
   |ADD LBRACE sexfloat RBRACE {Asyntax.UAddf $3}
   |SUB LBRACE sexfloat RBRACE {Asyntax.USubf $3}
   |FLOATOFINT LBRACE sexint RBRACE {Asyntax.Convif $3}

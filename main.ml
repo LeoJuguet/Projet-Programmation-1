@@ -1,11 +1,6 @@
 open Asyntax
 open Assembler
 
-type info = {
-    mutable input_name : string;
-    mutable as_output_name : bool;
-    mutable output_name : string
-            }
 
 let usage_msg = "aritha <file> [-o <output>]"
 let input_files = ref []
@@ -24,6 +19,6 @@ let _ =
     let lexbuf = Lexing.from_channel ic in
     let read () = Parser.parse Lexer.token lexbuf in
     let ast = read() in
-    let output_name = if !output_file = "" then "a.s" else !output_file
+    let output_name = if !output_file = "" then Filename.remove_extension (List.hd !input_files)^".s" else !output_file
     in
     Assembler.ast_to_asm ast output_name;
