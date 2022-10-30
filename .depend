@@ -7,21 +7,11 @@ assembler.cmx : \
 asyntax.cmo :
 asyntax.cmx :
 main.cmo : \
-    parser.cmi \
     asyntax.cmo \
     assembler.cmo
 main.cmx : \
-    parser.cmx \
     asyntax.cmx \
     assembler.cmx
-parser.cmo : \
-    asyntax.cmo \
-    parser.cmi
-parser.cmx : \
-    asyntax.cmx \
-    parser.cmi
-parser.cmi : \
-    asyntax.cmo
 x86_64.cmo : \
     x86_64.cmi
 x86_64.cmx : \

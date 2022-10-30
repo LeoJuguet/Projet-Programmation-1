@@ -291,10 +291,12 @@ let ast_to_asm ast name=
     | Assigni (x,a) -> begin
         let t,pos = variable_exist x in
         match t with
+        (*If the variable doesn't exist, create the variable*)
         | Unknow -> begin
             sexint_to_asm a;
             variable := !variable@[(x,Int)];
         end
+        (*If the variable exists, update the variable*)
         | _ -> begin
             sexint_to_asm a;
             code.text <- code.text
@@ -307,10 +309,12 @@ let ast_to_asm ast name=
     | Assignf (x,a) -> begin
         let t,pos = variable_exist x in
         match t with
+        (*If the variable doesn't exist, create the variable*)
         | Unknow -> begin
             sexfloat_to_asm a;
             variable := !variable@[(x,Float)];
         end
+        (*If the variable exists, update the variable*)
         | _ -> begin
             sexfloat_to_asm a;
             code.text <- code.text
@@ -319,6 +323,7 @@ let ast_to_asm ast name=
             set_variable x Float;
             end
       end
+      (*If the variable is not typed we look for the variable and type it*)
     | VariableU x-> begin
         let t,pos = variable_exist x in
         match t with
@@ -369,6 +374,6 @@ let ast_to_asm ast name=
      if !addexpfloat then
        (code.text <- code.text ++ inline expfloat;
         code.data <- code.data ++ inline dataexpfloat;);
-
+      (*Generate file*)
     let codef:program = {text = code.text; data = code.data} in
     print_in_file ~file:name codef;

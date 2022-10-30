@@ -15,6 +15,7 @@ rule token = parse
 | '%'   {MOD}
 | '!'   {FACT}
 | "**"  {EXP}
+| "^"   {EXP}
 | "+."  {ADDDOT}
 | "-."  {SUBDOT}
 | "*."  {TIMESDOT}
@@ -25,5 +26,5 @@ rule token = parse
 | ('-'|'+')?['0'-'9']+    {INT(Lexing.lexeme lexbuf)}
 | "int"         {INTOFFLOAT}
 | "float"       {FLOATOFINT}
-| ['A'-'z']['A'-'z' '0'-'9' '_']*  {NAME(Lexing.lexeme lexbuf)}
+| ['A'-'Z' 'a'-'z' '_']['A'-'Z' 'a'-'z' '0'-'9' '_']*  {NAME(Lexing.lexeme lexbuf)}
 | eof {EOF}

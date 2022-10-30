@@ -38,12 +38,17 @@ dépile le nombre d'éléments dont elle a besoin puis empile le résultat sur l
 à la fin on dépile le dernier éléments puis on appelle printf avec cet éléments. Grâce au typage de notre arbre syntaxique,
 il est facile de déterminer si l'on doit afficher un flottants ou un entier.
 
+Les shift/reduce conflicts et reduce/reduce conflicts ne semblent pas poser de problème sur les cas pris en compte par le langage.
 \section{Bonus}
 \subsection{Opérateurs supplémentaire}
 
-La factorielle a été implémenté pour les entiers positifs. La factorielle pour des entiers négatifs donne un résultat non prévue.
+La factorielle a été implémenté pour les entiers positifs avec le symbole : \verb|!| 
 
-La puissance pour des entiers ou des flottants par un entier positif est implémenté. La puissance par des entiers négatifs donne un résultat non prévue.
+La factorielle pour des entiers négatifs donne un résultat non prévue.
+
+La puissance pour des entiers ou des flottants par un entier positif est implémenté avec les symboles \verb|**| et \verb|^|
+
+La puissance par des entiers négatifs donne un résultat non prévue.
 
 L'implémentation de ces deux fonctions utilise un appel à une fonctionne qui est ajouté au code assembleur si la fonction est appelé.
 
@@ -59,6 +64,8 @@ NomDeVariable = expression arithmétique
 expression arithmétique
 
 \end{verbatim}
+
+Les noms de variables ne peuvent pas commencer par un chiffre et sont constitué de lettre en majuscule ou en minuscule, de chiffre et de \verb|_|.
 
 Il est important de noter que la dernière expression arithmétique est obligatoire, pour que le fichier \verb|.exp|
 puisse être compilé. Seul le résultat de la dernière expression arithmétique est affiché lors de l'exécution
